@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
           if (state is MovieLoading) {
             return Center(child: CircularProgressIndicator());
           } else if (state is MovieLoaded) {
-            return MovieListWidget();
+            return MovieListWidget(userToken: user.token);
           } else if (state is MovieError) {
             return Center(child: Text(state.error, style: TextStyle(color: Colors.white)));
           } else {
