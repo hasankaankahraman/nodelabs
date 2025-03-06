@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
           ProfileScreen(user: widget.user), // ✅ Kullanıcıyı gönder
         ],
       ),
-      bottomNavigationBar: BottomNavBarWidget(
+      bottomNavigationBar: CustomBottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

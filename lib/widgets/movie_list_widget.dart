@@ -15,19 +15,39 @@ class MovieListWidget extends StatefulWidget {
 
 class _MovieListWidgetState extends State<MovieListWidget> {
   final PageController _pageController = PageController();
-  int _currentIndex = 0; // Şu an hangi sayfada olduğumuzu takip etmek için
+  bool _isFetching = false; // 📌 Aynı anda birden fazla istek atılmasını engellemek için
 
   @override
   void initState() {
     super.initState();
+    context.read<MovieCubit>().fetchMovies(widget.userToken); // İlk yükleme
 
-    // Sayfa değiştirildiğinde kontrol etmek için listener ekle
-    _pageController.addListener(() {
-      if (_pageController.page == _currentIndex + 1) {
-        _currentIndex++;
+    // 📌 Sayfa değişiminde yeni veri çekmek için listener ekle
+    _pageController.addListener(_handleScroll);
+  }
+
+  void _handleScroll() {
+    if (_pageController.position.pixels == _pageController.position.maxScrollExtent) {
+      if (!_isFetching) {
+        setState(() => _isFetching = true); // Yeni istek başlamadan önce isFetching'i güncelle
+
         context.read<MovieCubit>().fetchMovies(widget.userToken, isLoadMore: true);
+
+        // API çağrısı tamamlandıktan sonra tekrar veri çekilmesini sağlamak için gecikme ekleyelim
+        Future.delayed(Duration(seconds: 1), () {
+          if (mounted) {
+            setState(() => _isFetching = false);
+          }
+        });
       }
-    });
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.removeListener(_handleScroll); // 📌 Listener'ı kaldır
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -39,9 +59,12 @@ class _MovieListWidgetState extends State<MovieListWidget> {
         } else if (state is MovieLoaded) {
           return PageView.builder(
             controller: _pageController,
-            scrollDirection: Axis.vertical, // 📌 Yukarı-aşağı kaydırma
-            itemCount: state.movies.length,
+            scrollDirection: Axis.vertical, // 📌 TikTok tarzı dikey kaydırma
+            itemCount: state.movies.length + 1, // 📌 Ekstra 1 ekleyerek "yükleniyor" gösterebiliriz
             itemBuilder: (context, index) {
+              if (index == state.movies.length) {
+                return Center(child: CircularProgressIndicator()); // 📌 Yeni veriler yüklenirken göster
+              }
               return MovieCardWidget(movie: state.movies[index]);
             },
           );
@@ -50,11 +73,5 @@ class _MovieListWidgetState extends State<MovieListWidget> {
         }
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 }

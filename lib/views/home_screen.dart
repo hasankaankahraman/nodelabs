@@ -4,34 +4,64 @@ import 'package:nodelabs/core/cubits/movie_cubit/movie_cubit.dart';
 import 'package:nodelabs/core/cubits/movie_cubit/movie_state.dart';
 import '../widgets/movie_list_widget.dart';
 import '../models/user_model.dart';
+import 'package:nodelabs/widgets/bottom_nav_bar.dart';
+import 'package:nodelabs/views/profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final UserModel user;
 
   const HomeScreen({Key? key, required this.user}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    context.read<MovieCubit>().fetchMovies(user.token);
+  _HomeScreenState createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      context.read<MovieCubit>().fetchMovies(widget.user.token);
+    });
+
+    _pages = [
+      BlocProvider.value(
+        value: context.read<MovieCubit>(),
+        child: MovieListWidget(
+          userToken: widget.user.token, // 🔥 Eksik parametre eklendi
+        ),
+      ),
+      ProfileScreen(user: widget.user),
+    ];
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text("Keşfet", style: TextStyle(color: Colors.white)),
+        title: Text(
+          _selectedIndex == 0 ? "Keşfet" : "Profil",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
-      body: BlocBuilder<MovieCubit, MovieState>(
-        builder: (context, state) {
-          if (state is MovieLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else if (state is MovieLoaded) {
-            return MovieListWidget(userToken: user.token);
-          } else if (state is MovieError) {
-            return Center(child: Text(state.error, style: TextStyle(color: Colors.white)));
-          } else {
-            return Center(child: Text("Henüz film yok.", style: TextStyle(color: Colors.white)));
-          }
-        },
+      body: _pages[_selectedIndex],
+
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
