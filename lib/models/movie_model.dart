@@ -3,12 +3,14 @@ class MovieModel {
   final String title;
   final String description;
   final String posterUrl;
+  bool isFavorite; // Favori durumu ekledik
 
   MovieModel({
     required this.id,
     required this.title,
     required this.description,
     required this.posterUrl,
+    this.isFavorite = false, // Varsayılan olarak false
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class MovieModel {
       title: json["Title"] ?? "Bilinmeyen Film",
       description: json["Plot"] ?? "Açıklama mevcut değil",
       posterUrl: finalPosterUrl,
+      isFavorite: json["isFavorite"] ?? false, // Eğer API'den geliyorsa, kullan
     );
   }
 }

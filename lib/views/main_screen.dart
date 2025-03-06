@@ -32,7 +32,7 @@ class _MainScreenState extends State<MainScreen> {
         physics: NeverScrollableScrollPhysics(),
         children: [
           HomeScreen(user: widget.user), // ✅ Kullanıcıyı gönder
-          ProfileScreen(user: widget.user), // ✅ Kullanıcıyı gönder
+          ProfileScreen(userToken: widget.user.token), // ✅ Kullanıcıyı gönder
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(

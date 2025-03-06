@@ -47,6 +47,7 @@ flutter:
     - assets/arrowleft_icon.svg
     - assets/facebook_icon.svg
     - assets/fav_icon.svg
+    - assets/favnot_icon.svg
     - assets/gem_icon.svg
     - assets/google_icon.svg
     - assets/hide_icon.svg

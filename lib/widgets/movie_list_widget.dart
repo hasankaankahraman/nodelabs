@@ -15,57 +15,34 @@ class MovieListWidget extends StatefulWidget {
 
 class _MovieListWidgetState extends State<MovieListWidget> {
   final PageController _pageController = PageController();
-  bool _isFetching = false; // 📌 Aynı anda birden fazla istek atılmasını engellemek için
 
   @override
   void initState() {
     super.initState();
-    context.read<MovieCubit>().fetchMovies(widget.userToken); // İlk yükleme
-
-    // 📌 Sayfa değişiminde yeni veri çekmek için listener ekle
-    _pageController.addListener(_handleScroll);
-  }
-
-  void _handleScroll() {
-    if (_pageController.position.pixels == _pageController.position.maxScrollExtent) {
-      if (!_isFetching) {
-        setState(() => _isFetching = true); // Yeni istek başlamadan önce isFetching'i güncelle
-
-        context.read<MovieCubit>().fetchMovies(widget.userToken, isLoadMore: true);
-
-        // API çağrısı tamamlandıktan sonra tekrar veri çekilmesini sağlamak için gecikme ekleyelim
-        Future.delayed(Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() => _isFetching = false);
-          }
-        });
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _pageController.removeListener(_handleScroll); // 📌 Listener'ı kaldır
-    _pageController.dispose();
-    super.dispose();
+    context.read<MovieCubit>().fetchMovies(widget.userToken);
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MovieCubit, MovieState>(
       builder: (context, state) {
-        if (state is MovieLoading && state is! MovieLoaded) {
+        if (state is MovieLoading) {
           return Center(child: CircularProgressIndicator());
         } else if (state is MovieLoaded) {
           return PageView.builder(
             controller: _pageController,
-            scrollDirection: Axis.vertical, // 📌 TikTok tarzı dikey kaydırma
-            itemCount: state.movies.length + 1, // 📌 Ekstra 1 ekleyerek "yükleniyor" gösterebiliriz
+            scrollDirection: Axis.vertical,
+            itemCount: state.movies.length + 1,
             itemBuilder: (context, index) {
               if (index == state.movies.length) {
-                return Center(child: CircularProgressIndicator()); // 📌 Yeni veriler yüklenirken göster
+                return Center(child: CircularProgressIndicator());
               }
-              return MovieCardWidget(movie: state.movies[index]);
+              final movie = state.movies[index];
+              return MovieCardWidget(
+                movie: movie,
+                isFavorite: movie.isFavorite,
+                userToken: widget.userToken,  // Token'ı buraya geçiyoruz
+              );
             },
           );
         } else {
