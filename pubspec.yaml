@@ -54,3 +54,4 @@ flutter:
     - assets/letter_icon.svg
     - assets/profile_icon.svg
     - assets/unlock_icon.svg
+    - assets/default_poster.png

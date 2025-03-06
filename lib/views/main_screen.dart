@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nodelabs/views/home_screen.dart';
-import 'package:nodelabs/views/profile_screen.dart';
+import 'home_screen.dart';
+import 'profile_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../models/user_model.dart';
 
 class MainScreen extends StatefulWidget {
-  final UserModel user; // ✅ Kullanıcı bilgisi parametre olarak alınıyor
+  final UserModel user; // 📌 Kullanıcı bilgisini al
 
   const MainScreen({Key? key, required this.user}) : super(key: key);
 
@@ -31,11 +31,11 @@ class _MainScreenState extends State<MainScreen> {
         controller: _pageController,
         physics: NeverScrollableScrollPhysics(),
         children: [
-          HomeScreen(user: widget.user), // ✅ Film Listesi Ekranı
-          ProfileScreen(user: widget.user), // ✅ Kullanıcı bilgisi ProfileScreen'e geçildi
+          HomeScreen(user: widget.user), // ✅ Kullanıcıyı gönder
+          ProfileScreen(user: widget.user), // ✅ Kullanıcıyı gönder
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBarWidget(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
