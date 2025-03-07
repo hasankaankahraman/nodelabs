@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import '../core/app_colors.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // SVG import'u ekledik
+import 'package:flutter_svg/flutter_svg.dart';
 
-class CustomButton extends StatefulWidget {
+class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final Color? color;
   final Color? textColor;
-  final String? iconPath; // Eklenen icon parametresi
+  final String? iconPath;
+  final double? fontSize;
+  final double? paddingHorizontal;
+  final double? paddingVertical;
+  final double? borderRadius;
+  final double? iconSize;
+  final double? minWidth; // ✅ Ekledik!
 
   const CustomButton({
     Key? key,
@@ -15,73 +20,57 @@ class CustomButton extends StatefulWidget {
     required this.onPressed,
     this.color,
     this.textColor,
-    this.iconPath,  // Icon path'i de parametre olarak alıyoruz
+    this.iconPath,
+    this.fontSize,
+    this.paddingHorizontal,
+    this.paddingVertical,
+    this.borderRadius,
+    this.iconSize,
+    this.minWidth, // ✅ Ekledik!
   }) : super(key: key);
 
   @override
-  _CustomButtonState createState() => _CustomButtonState();
-}
-
-class _CustomButtonState extends State<CustomButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _isPressed = true;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          _isPressed = false;
-        });
-        widget.onPressed();
-      },
-      onTapCancel: () {
-        setState(() {
-          _isPressed = false;
-        });
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+      onTap: onPressed,
+      child: Container(
+        constraints: BoxConstraints(
+          minWidth: minWidth ?? screenWidth * 0.25, // ✅ Artık butonun minimum genişliği belirlenebilir
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: paddingHorizontal ?? screenWidth * 0.05,
+          vertical: paddingVertical ?? 10,
+        ),
         decoration: BoxDecoration(
-          color: widget.color ?? AppColors.buttonBackground,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: _isPressed
-              ? []
-              : [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 10,
-              offset: Offset(0, 5),
-            ),
-          ],
+          color: color ?? Colors.blue,
+          borderRadius: BorderRadius.circular(borderRadius ?? 10),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Eğer icon varsa, ikonu göstereceğiz
-            if (widget.iconPath != null)
+            if (iconPath != null)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: SvgPicture.asset(
-                  widget.iconPath!,
-                  color: widget.textColor ?? AppColors.textPrimary,
-                  height: 20,
-                  width: 20,
+                  iconPath!,
+                  color: textColor ?? Colors.white,
+                  height: iconSize ?? 20,
+                  width: iconSize ?? 20,
                 ),
               ),
-            // Buton metnini ekliyoruz
-            Text(
-              widget.text,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: widget.textColor ?? AppColors.textPrimary,
+            Flexible(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: fontSize ?? 16,
+                  fontWeight: FontWeight.bold,
+                  color: textColor ?? Colors.white,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
           ],
