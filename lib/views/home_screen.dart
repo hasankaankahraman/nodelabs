@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nodelabs/core/cubits/movie_cubit/movie_cubit.dart';
-import 'package:nodelabs/core/cubits/movie_cubit/movie_state.dart';
 import '../widgets/movie_list_widget.dart';
 import '../models/user_model.dart';
 import 'package:nodelabs/widgets/bottom_nav_bar.dart';
@@ -54,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black, // 📌 Arka plan rengini siyah yap
       body: _pages[_selectedIndex], // Sayfa içeriği seçili index'e göre gösterilir
-
       bottomNavigationBar: CustomBottomNavBar(
         selectedIndex: _selectedIndex, // Seçili index
         onItemTapped: _onItemTapped, // Alt nav bar tıklama işlemi

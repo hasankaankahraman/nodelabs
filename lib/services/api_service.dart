@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:nodelabs/models/movie_model.dart';
+import 'package:nodelabs/models/user_model.dart';
 
 class ApiService {
   static const String baseUrl = "https://caseapi.nodelabs.dev";
@@ -76,6 +77,23 @@ class ApiService {
     } else {
       print("❌ Fotoğraf yükleme başarısız: $responseBody");
       return null;
+    }
+  }
+
+  Future<UserModel> getUserProfile(String token) async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/user/profile"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body)['data'];
+      return UserModel.fromJson(data);
+    } else {
+      throw Exception("Profil bilgisi alınamadı");
     }
   }
 
