@@ -160,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisCount: 2, // ✅ 2 sütun
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
-                        childAspectRatio: 0.5, // ✅ Kart oranı ayarlandı
+                        childAspectRatio: 0.55, // ✅ Kart oranı ayarlandı
                       ),
                       itemCount: favoriteMovies.length,
                       itemBuilder: (context, index) {

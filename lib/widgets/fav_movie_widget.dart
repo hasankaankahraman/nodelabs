@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class FavMovieCard extends StatelessWidget {
   final String imageUrl;
@@ -31,50 +32,72 @@ class FavMovieCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Film posteri
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              imageUrl,
-              width: screenWidth * 0.45,
-              height: screenHeight * 0.25,
-              fit: BoxFit.cover,
-            ),
+          // ✅ Stack ile resim ve kalp butonunu üst üste koyuyoruz
+          Stack(
+            children: [
+              // 🎬 Film posteri
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl,
+                  width: screenWidth * 0.45,
+                  height: screenHeight * 0.26, // 🔥 Biraz küçülttük
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              // ❤️ Favori butonu (Sağ Üstte)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: GestureDetector(
+                  onTap: onFavoriteToggle,
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: SvgPicture.asset(
+                      isFavorite ? 'assets/fav_icon.svg' : 'assets/favnot_icon.svg',
+                      width: screenWidth * 0.06,
+                      height: screenWidth * 0.06,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
 
           Padding(
-            padding: EdgeInsets.all(screenWidth * 0.02),
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02, vertical: screenHeight * 0.008),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 🎬 Film Adı
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: screenWidth * 0.04,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
+                SizedBox(height: 4), // 🔥 Boşluğu azalttık
+
+                // 🎭 Yapımcı (Bilinmeyen ise daha küçük yazı boyutu)
                 Text(
                   producer,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: screenWidth * 0.035,
+                    fontSize: producer == "Bilinmeyen Yapımcı" ? screenWidth * 0.03 : screenWidth * 0.035, // 🔥 Küçük font
                   ),
                 ),
               ],
-            ),
-          ),
-
-          // Favori butonu
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-            child: IconButton(
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : Colors.white,
-              ),
-              onPressed: onFavoriteToggle,
             ),
           ),
         ],
