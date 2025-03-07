@@ -122,16 +122,14 @@ class ApiService {
   }
 
 
-// Favori filmleri al
   Future<List<MovieModel>> getFavoriteMovies(String token) async {
-    final url = Uri.parse("$baseUrl/movie/favorites");
+    final url = Uri.parse("$baseUrl/movie/favorites"); // ✅ Doğru endpoint
 
-    // Authorization header'ı ekliyoruz
     final response = await http.get(
       url,
       headers: {
         'accept': 'application/json',
-        'Authorization': 'Bearer $token', // Token'ı burada Authorization header'ına ekliyoruz
+        'Authorization': 'Bearer $token', // ✅ Token burada header'a eklendi
       },
     );
 
@@ -141,13 +139,17 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      final List<MovieModel> favoriteMovies = [];
-      for (var movie in responseData['movies']) {
-        favoriteMovies.add(MovieModel.fromJson(movie)); // MovieModel'e dönüştürüp listeye ekliyoruz
+
+      if (responseData.containsKey('data') && responseData['data'] is List) {
+        List<MovieModel> favoriteMovies = responseData['data']
+            .map<MovieModel>((movie) => MovieModel.fromJson(movie))
+            .toList();
+        return favoriteMovies;
+      } else {
+        throw Exception("Geçersiz veri formatı");
       }
-      return favoriteMovies;
     } else {
-      throw Exception("API Hatası: ${response.body}");
+      throw Exception("Favori filmler alınamadı: ${response.body}");
     }
   }
 

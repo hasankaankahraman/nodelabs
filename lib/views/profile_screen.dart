@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nodelabs/services/api_service.dart';
 import 'package:nodelabs/widgets/custom_button.dart';
 import 'package:nodelabs/widgets/user_profile_widget.dart';
+import 'package:nodelabs/widgets/fav_movie_widget.dart'; // ✅ Favori film kartı eklendi
 import '../models/movie_model.dart';
 import '../models/user_model.dart';
 
@@ -21,8 +22,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _favoriteMovies = ApiService().getFavoriteMovies(widget.userToken);
+    _loadFavoriteMovies();
     _userProfile = ApiService().getUserProfile(widget.userToken);
+  }
+
+  void _loadFavoriteMovies() {
+    setState(() {
+      _favoriteMovies = ApiService().getFavoriteMovies(widget.userToken);
+    });
+  }
+
+  // Favori ekleme/çıkarma işlemi
+  Future<void> _toggleFavorite(String movieId) async {
+    try {
+      final response = await ApiService().toggleFavorite(movieId, widget.userToken);
+      if (response) {
+        _loadFavoriteMovies(); // ✅ Listeyi güncelle
+      }
+    } catch (e) {
+      print("Favori ekleme/çıkarma hatası: $e");
+    }
   }
 
   @override
@@ -38,7 +57,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Row(
           children: [
             Expanded(flex: 3, child: SizedBox()),
-
             Expanded(
               flex: 3,
               child: Container(
@@ -53,7 +71,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-
             Expanded(
               flex: 3,
               child: Align(
@@ -71,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   paddingVertical: screenHeight * 0.01,
                   borderRadius: screenWidth * 0.1,
                   iconSize: screenHeight * 0.02,
-                  minWidth: screenWidth * 0.3, // Butonun genişliği
+                  minWidth: screenWidth * 0.3,
                 ),
               ),
             ),
@@ -118,6 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
 
+            // ✅ Favori Filmler Listesi (GridView ile 2 sütun)
             Expanded(
               child: FutureBuilder<List<MovieModel>>(
                 future: _favoriteMovies,
@@ -136,11 +154,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       textAlign: TextAlign.center,
                     );
                   } else {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.length,
+                    final favoriteMovies = snapshot.data!;
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // ✅ 2 sütun
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.5, // ✅ Kart oranı ayarlandı
+                      ),
+                      itemCount: favoriteMovies.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(snapshot.data![index].title, style: TextStyle(color: Colors.white)),
+                        final movie = favoriteMovies[index];
+                        return FavMovieCard(
+                          imageUrl: movie.posterUrl,
+                          title: movie.title,
+                          producer: "Bilinmeyen Yapımcı", // API'de olmadığı için placeholder verdik
+                          isFavorite: movie.isFavorite,
+                          onFavoriteToggle: () => _toggleFavorite(movie.id),
                         );
                       },
                     );
