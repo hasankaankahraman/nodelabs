@@ -22,7 +22,7 @@ void main() {
           create: (context) => ProfileCubit(),
         ),
         BlocProvider<MovieCubit>(
-          create: (context) => MovieCubit(movieRepository: movieRepository), // ✅ MovieRepository kullanıldı
+          create: (context) => MovieCubit(movieRepository), // ✅ MovieRepository kullanıldı
         ),
       ],
       child: MyApp(),

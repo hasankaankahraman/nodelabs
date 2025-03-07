@@ -2,33 +2,40 @@ import 'package:equatable/equatable.dart';
 import 'package:nodelabs/models/movie_model.dart';
 
 abstract class MovieState extends Equatable {
+  const MovieState();
+
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
-// 📌 Başlangıç State'i
 class MovieInitial extends MovieState {}
 
-// 📌 Yükleniyor State'i
 class MovieLoading extends MovieState {}
 
-// 📌 Yükleme Başarılı (Film Listesi Geldi)
-class MovieLoaded extends MovieState {
+class MovieLoadingMore extends MovieState {
   final List<MovieModel> movies;
-  final bool hasMore; // ✅ API'den gelen total sayfa sayısına göre daha fazla veri olup olmadığını kontrol edecek
 
-  MovieLoaded({required this.movies, required this.hasMore}); // ✅ hasMore ekledik
+  const MovieLoadingMore({required this.movies});
 
   @override
-  List<Object?> get props => [movies, hasMore];
+  List<Object> get props => [movies];
 }
 
-// 📌 Hata Durumu
+class MovieLoaded extends MovieState {
+  final List<MovieModel> movies;
+  final bool hasMore;
+
+  const MovieLoaded({required this.movies, required this.hasMore});
+
+  @override
+  List<Object> get props => [movies, hasMore];
+}
+
 class MovieError extends MovieState {
   final String error;
 
-  MovieError({required this.error});
+  const MovieError({required this.error});
 
   @override
-  List<Object?> get props => [error];
+  List<Object> get props => [error];
 }

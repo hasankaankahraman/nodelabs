@@ -3,38 +3,31 @@ class MovieModel {
   final String title;
   final String description;
   final String posterUrl;
-  final String producer; // ✅ Producer alanı eklendi
-  bool isFavorite; // Favori durumu
+  final String producer;
+  bool isFavorite;
 
   MovieModel({
     required this.id,
     required this.title,
     required this.description,
     required this.posterUrl,
-    required this.producer, // ✅ Producer zorunlu hale getirildi
+    required this.producer,
     this.isFavorite = false,
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json) {
-    String rawPosterUrl = json["Poster"] ?? "";
-
-    // ✅ Eğer HTTP varsa HTTPS yapalım
-    if (rawPosterUrl.startsWith("http://")) {
-      rawPosterUrl = rawPosterUrl.replaceFirst("http://", "https://");
-    }
-
-    // ✅ Eğer poster URL yoksa veya boşsa, varsayılan bir görsel kullan
-    String finalPosterUrl = rawPosterUrl.isNotEmpty
-        ? rawPosterUrl
-        : "https://via.placeholder.com/500x750.png?text=No+Image";
+    // ✅ Poster URL null kontrolü ve HTTP → HTTPS dönüşümü
+    final rawPosterUrl = (json["Poster"] as String?)?.replaceFirst("http://", "https://") ?? "";
 
     return MovieModel(
-      id: json["id"] ?? "",
-      title: json["Title"] ?? "Bilinmeyen Film",
-      description: json["Plot"] ?? "Açıklama mevcut değil",
-      posterUrl: finalPosterUrl,
-      producer: json["Producer"] ?? "Bilinmeyen Yapımcı", // ✅ Producer eklendi
-      isFavorite: json["isFavorite"] ?? false,
+      id: (json["id"] ?? json["_id"] ?? "").toString(), // Hem id hem _id kontrolü
+      title: (json["Title"] as String?) ?? "Bilinmeyen Film",
+      description: (json["Plot"] as String?) ?? "Açıklama mevcut değil",
+      posterUrl: rawPosterUrl.isNotEmpty
+          ? rawPosterUrl
+          : "https://via.placeholder.com/500x750.png?text=No+Image",
+      producer: (json["Producer"] as String?) ?? "Bilinmeyen Yapımcı",
+      isFavorite: (json["isFavorite"] as bool?) ?? false,
     );
   }
 }

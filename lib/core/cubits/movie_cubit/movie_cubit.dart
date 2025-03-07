@@ -1,61 +1,42 @@
-import 'dart:math';
-
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nodelabs/core/cubits/movie_cubit/movie_state.dart';
 import 'package:nodelabs/models/movie_model.dart';
 import 'package:nodelabs/repositories/movie_repository.dart';
 
 class MovieCubit extends Cubit<MovieState> {
-  final MovieRepository movieRepository;
+  final MovieRepository _repository;
+  int _currentPage = 1;
+  bool _hasMore = true;
+  bool _isLoading = false;
+  List<MovieModel> _movies = [];
 
-  int currentPage = 1;
-  final int perPage = 5; // ✅ API’de belirtilen perPage değerine göre ayarla
-  bool isFetching = false; // ✅ Aynı anda birden fazla istek atılmasını engellemek için
+  MovieCubit(this._repository) : super(MovieInitial());
 
-  MovieCubit({required this.movieRepository}) : super(MovieInitial());
+  Future<void> fetchMovies(String token, {bool loadMore = false}) async {
+    if (_isLoading || (loadMore && !_hasMore)) return;
 
-  void fetchMovies(String token, {bool isLoadMore = false, bool reset = false, int? targetPage}) async {
-    if (isFetching) return;
-    isFetching = true;
-
-    if (reset) {
-      currentPage = 1; // 📌 Sayfayı sıfırla
-      emit(MovieInitial()); // 📌 State'i sıfırla
-    }
-
+    _isLoading = true;
     try {
-      if (!isLoadMore) {
-        emit(MovieLoading());
-      }
+      final response = await _repository.fetchMovies(token, page: loadMore ? _currentPage + 1 : 1);
 
-      // ✅ Rastgele bir sayfa seç (1 ile maxPage arasında)
-      if (reset || !isLoadMore) {
-        final response = await movieRepository.fetchMovies(token, page: 1); // İlk sayfayı çekerek maxPage'i al
-        final int maxPage = response["maxPage"];
-        currentPage = Random().nextInt(maxPage) + 1; // 📌 Rastgele sayfa seç (1 ile maxPage arasında)
-      }
+      // ✅ Response değerlerini kontrol edin
+      final newMovies = response["movies"] as List<MovieModel>? ?? [];
+      final currentPage = response["currentPage"] as int? ?? 1;
+      final maxPage = response["maxPage"] as int? ?? 1;
 
-      // ✅ API'den gelen "pagination" bilgisini al
-      final response = await movieRepository.fetchMovies(token, page: currentPage);
-      final newMovies = response["movies"] as List<MovieModel>;
-      final int maxPage = response["maxPage"];
-      final bool hasMore = currentPage < maxPage; // ✅ Eğer daha fazla sayfa varsa, true yap
+      // State güncelleme
+      _movies = loadMore ? [..._movies, ...newMovies] : newMovies;
+      _currentPage = currentPage;
+      _hasMore = currentPage < maxPage;
 
-      if (state is MovieLoaded) {
-        final List<MovieModel> currentMovies = (state as MovieLoaded).movies;
-        // 📌 Aşağı inince yeni filmleri sona ekle
-        emit(MovieLoaded(movies: [...currentMovies, ...newMovies], hasMore: hasMore));
-      } else {
-        emit(MovieLoaded(movies: newMovies, hasMore: hasMore));
-      }
-
-      if (!isLoadMore && hasMore) {
-        currentPage++; // ✅ Aşağı inerken sayfayı artır (eğer daha fazla veri varsa)
-      }
+      emit(MovieLoaded(movies: _movies, hasMore: _hasMore));
     } catch (e) {
-      emit(MovieError(error: e.toString()));
+      // ✅ Hata mesajını daha spesifik hale getirin
+      emit(MovieError(error: "Hata: ${e.toString()}"));
+      if (loadMore) emit(MovieLoaded(movies: _movies, hasMore: _hasMore));
+    } finally {
+      _isLoading = false;
     }
-
-    isFetching = false;
   }
 }

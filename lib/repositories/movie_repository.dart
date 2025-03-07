@@ -8,27 +8,21 @@ class MovieRepository {
 
   Future<Map<String, dynamic>> fetchMovies(String token, {int page = 1}) async {
     try {
-      final data = await apiService.getRequest("movie/list?page=$page", token: token);
+      final response = await apiService.getRequest("movie/list?page=$page", token: token);
 
-      if (data['data'] == null || data['data']['movies'] == null || data['data']['pagination'] == null) {
-        throw Exception("API yanıtı beklenen formatta değil!");
-      }
-
-      final List movies = data['data']['movies'];
-      final int totalCount = data['data']['pagination']['totalCount']; // ✅ Toplam film sayısı
-      final int maxPage = data['data']['pagination']['maxPage']; // ✅ Maksimum sayfa sayısı
-      final int currentPage = data['data']['pagination']['currentPage']; // ✅ Mevcut sayfa
-      final bool hasMore = currentPage < maxPage; // ✅ Daha fazla sayfa olup olmadığını kontrol et
+      // ✅ Null check'leri ekleyin
+      final data = response['data'] ?? {}; // Data yoksa boş map kullan
+      final moviesData = data['movies'] as List? ?? []; // Movies yoksa boş liste
+      final pagination = data['pagination'] as Map<String, dynamic>? ?? {}; // Pagination yoksa boş map
 
       return {
-        "movies": movies.map((movie) => MovieModel.fromJson(movie)).toList(),
-        "totalCount": totalCount,
-        "maxPage": maxPage,
-        "hasMore": hasMore,
+        "movies": moviesData.map((movie) => MovieModel.fromJson(movie)).toList(),
+        "currentPage": (pagination['currentPage'] as int?) ?? 1, // Default değer
+        "maxPage": (pagination['maxPage'] as int?) ?? 1, // Default değer
       };
     } catch (e) {
-      print("❌ API Hata: $e");
-      throw Exception("API hatası: $e");
+      print("❌ MovieRepository Error: ${e.toString()}");
+      throw Exception("Filmler yüklenemedi");
     }
   }
 }
