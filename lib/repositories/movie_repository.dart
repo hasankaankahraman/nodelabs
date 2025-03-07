@@ -16,7 +16,6 @@ class MovieRepository {
 
       final List movies = data['data']['movies'];
       final int totalCount = data['data']['pagination']['totalCount']; // ✅ Toplam film sayısı
-      final int perPage = data['data']['pagination']['perPage']; // ✅ Sayfa başına film sayısı
       final int maxPage = data['data']['pagination']['maxPage']; // ✅ Maksimum sayfa sayısı
       final int currentPage = data['data']['pagination']['currentPage']; // ✅ Mevcut sayfa
       final bool hasMore = currentPage < maxPage; // ✅ Daha fazla sayfa olup olmadığını kontrol et

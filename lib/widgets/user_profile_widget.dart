@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nodelabs/core/app_colors.dart';
 import '../models/user_model.dart';
 import '../widgets/custom_button.dart';
 
@@ -68,7 +69,7 @@ class UserProfileWidget extends StatelessWidget {
             child: CustomButton(
               text: "Fotoğraf Ekle",
               onPressed: onPhotoUpload,
-              color: Colors.red,
+              color: AppColors.accent,
               textColor: Colors.white,
               fontSize: screenWidth * 0.03,
               paddingHorizontal: screenWidth * 0.04,

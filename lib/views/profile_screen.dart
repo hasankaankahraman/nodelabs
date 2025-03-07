@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nodelabs/core/app_colors.dart';
 import 'package:nodelabs/services/api_service.dart';
+import 'package:nodelabs/widgets/LimitedOfferBottomSheet.dart';
 import 'package:nodelabs/widgets/custom_button.dart';
 import 'package:nodelabs/widgets/user_profile_widget.dart';
 import 'package:nodelabs/widgets/fav_movie_widget.dart'; // ✅ Favori film kartı eklendi
@@ -44,6 +46,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showLimitedOfferBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent, // Arka planı şeffaf yap
+      isScrollControlled: true, // Tam ekran yapabilmek için
+      builder: (context) {
+        return LimitedOfferBottomSheet();
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -75,12 +89,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               flex: 3,
               child: Align(
                 alignment: Alignment.centerRight,
-                child: CustomButton(
+                child:
+                CustomButton(
+                  onPressed: () => _showLimitedOfferBottomSheet(context),
                   text: 'Sınırlı Teklif',
-                  onPressed: () {
-                    print("Sınırlı teklif butonuna tıklandı!");
-                  },
-                  color: Colors.red,
+                  color: AppColors.accent,
                   textColor: Colors.white,
                   iconPath: 'assets/gem_icon.svg',
                   fontSize: screenWidth * 0.03,
