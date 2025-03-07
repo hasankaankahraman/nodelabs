@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nodelabs/core/app_colors.dart';
 import 'package:nodelabs/core/cubits/auth_cubit/auth_cubit.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/custom_button.dart';
@@ -94,6 +95,7 @@ class LoginScreen extends StatelessWidget {
                   // Giriş Yap Butonu
                   CustomButton(
                     text: state is AuthLoading ? "Giriş Yapılıyor..." : "Giriş Yap",
+                    color: AppColors.accent,
                     onPressed: () {
                       if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
                         context.read<AuthCubit>().login(

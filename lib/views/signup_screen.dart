@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nodelabs/core/app_colors.dart';
 import 'package:nodelabs/core/cubits/auth_cubit/auth_cubit.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/custom_button.dart';
@@ -129,6 +130,7 @@ class SignupScreen extends StatelessWidget {
                   // Kayıt Ol Butonu
                   CustomButton(
                     text: state is AuthLoading ? "Kayıt Olunuyor..." : "Şimdi Kaydol",
+                    color: AppColors.accent,
                     onPressed: () {
                       if (nameController.text.isNotEmpty &&
                           emailController.text.isNotEmpty &&
