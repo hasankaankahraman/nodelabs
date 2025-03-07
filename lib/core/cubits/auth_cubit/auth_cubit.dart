@@ -55,22 +55,21 @@ class AuthCubit extends Cubit<AuthState> {
         "password": password,
       });
 
-      // 📌 API yanıtını debug için konsolda gösterelim
+      // API yanıtını debug için konsolda gösterelim
       print("📌 API Yanıtı: ${response.statusCode} - ${response.data}");
 
-      // ✅ Başarılı Yanıt Kontrolü
-      if (response.statusCode == 200 && response.data.containsKey("token")) {
-        final userData = response.data["user"];
+      // Başarılı Yanıt Kontrolü
+      if (response.statusCode == 200 && response.data.containsKey("data")) {
+        final userData = response.data["data"];
         final user = UserModel.fromJson(userData);
         emit(AuthSuccess(user));
       } else {
         emit(AuthFailure("🚨 Kayıt başarısız, API'den geçerli yanıt gelmedi."));
       }
     } catch (e) {
-      // 📌 Hata detaylarını konsolda gösterelim
+      // Hata detaylarını konsolda gösterelim
       print("❌ Hata Detayı: $e");
 
-      // 📌 API'nin neden hata verdiğini anlamamız için Dio hata türlerini kontrol edelim
       if (e is DioException) {
         if (e.response != null) {
           print("⚠️ API Hata Yanıtı: ${e.response!.data}");
