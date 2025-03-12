@@ -150,7 +150,6 @@ class _MovieListWidgetState extends State<MovieListWidget> {
       height: MediaQuery.of(context).size.height,
       child: MovieCardWidget(
         movie: movie,
-        isFavorite: movie.isFavorite,
         userToken: widget.userToken,
       ),
     );

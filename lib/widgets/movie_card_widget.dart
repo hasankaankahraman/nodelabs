@@ -20,14 +20,48 @@ class MovieCardWidget extends StatefulWidget {
   _MovieCardWidgetState createState() => _MovieCardWidgetState();
 }
 
-class _MovieCardWidgetState extends State<MovieCardWidget> {
+class _MovieCardWidgetState extends State<MovieCardWidget> with SingleTickerProviderStateMixin {
   // Local state for the favorite status
   late bool _isFavorite;
+
+  // Animasyon için gerekli controller
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
     _isFavorite = widget.movie.isFavorite;
+
+    // Animasyon controller'ını başlat
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+
+    // Kalp ikonu için ölçek animasyonu
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.3), weight: 40),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.3, end: 1.0), weight: 60),
+    ]).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Opsiyonel: Parıltı efekti için opaklık animasyonu
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -116,7 +150,7 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
               ),
             ),
 
-            // Kalp ikonunu ekranın ortasına sağa yapıştır
+            // Kalp ikonu - animasyonlu
             Positioned(
               top: MediaQuery.of(context).size.height / 2 - 25,
               right: 20,
@@ -129,14 +163,12 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(color: AppColors.border, width: 0.5),
                 ),
-                child: IconButton(
-                  icon: SvgPicture.asset(
-                    _isFavorite ? 'assets/fav_icon.svg' : 'assets/favnot_icon.svg',
-                    color: Colors.white,
-                    width: 50,
-                    height: 50,
-                  ),
-                  onPressed: () {
+                child: GestureDetector(
+                  onTap: () {
+                    // Animasyonu tetikle
+                    _animationController.reset();
+                    _animationController.forward();
+
                     // Optimistik güncelleme için önce yerel durumu değiştir
                     setState(() {
                       _isFavorite = !_isFavorite;
@@ -146,6 +178,26 @@ class _MovieCardWidgetState extends State<MovieCardWidget> {
                     context.read<MovieCubit>().toggleMovieFavorite(widget.movie.id, widget.userToken);
                     print("⭐ Favori butonu tıklandı: ${widget.movie.title} - yeni durum: $_isFavorite");
                   },
+                  child: AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Ana kalp ikonu (ölçeklenecek)
+                          Transform.scale(
+                            scale: _isFavorite ? _scaleAnimation.value : 1.0,
+                            child: SvgPicture.asset(
+                              _isFavorite ? 'assets/fav_icon.svg' : 'assets/favnot_icon.svg',
+                              color: _isFavorite ? Colors.white : Colors.white,
+                              width: 30,
+                              height: 30,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
